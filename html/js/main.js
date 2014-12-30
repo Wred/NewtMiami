@@ -11,7 +11,7 @@ onload = function () {
 
 	video = document.getElementById("video");
 
-	video.currentTime = (msSinceHour + 80) / 1000;
+	video.currentTime = (msSinceHour) / 1000;
 	video.play();
 
 	clockSpan = document.getElementById("time");
