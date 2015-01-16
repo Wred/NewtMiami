@@ -7,13 +7,16 @@ onload = function () {
 	// Start clock
 	updateClock();
 
-	//media.addEventListener("progress", monitorLoad);
-
-	monitorLoad();
-
 	syncVideo();
 }
 
+
+function getMillisecondFromHour() {
+        // how long since start of the hour?
+        var date = new Date();
+        var dateHour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
+        return date - dateHour;
+}
 
 function updateClock() {
 	var date = new Date();
@@ -22,19 +25,18 @@ function updateClock() {
 	requestAnimFrame(updateClock);
 }
 
-function monitorLoad(e) {
-	console.log(e);
-	//syncVideo();
-}
 
 function syncVideo() {
-        // how long since start of the hour?
-        var date = new Date();
-        var dateHour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
-        msSinceHour = date - dateHour;
+	intervalSyncVideo = setInterval(checkVideoSync, 100);
 
-        video.currentTime = msSinceHour / 1000;
+        video.currentTime = getMillisecondFromHour() / 1000;
 	video.addEventListener("seeked", seekComplete);
+}
+
+function checkVideoSync() {
+	if (media.buffered.end) {
+		
+	}
 }
 
 function seekComplete() {
