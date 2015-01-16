@@ -1,12 +1,15 @@
-var clockSpan;
-var video;
+var clockSpan, media, msSinceHour;
 
 onload = function () {
-	video = document.getElementById("video");
+	media = document.getElementById("video");
 	clockSpan = document.getElementById("time");
 
 	// Start clock
 	updateClock();
+
+	//media.addEventListener("progress", monitorLoad);
+
+	monitorLoad();
 
 	syncVideo();
 }
@@ -19,14 +22,26 @@ function updateClock() {
 	requestAnimFrame(updateClock);
 }
 
+function monitorLoad(e) {
+	console.log(e);
+	//syncVideo();
+}
+
 function syncVideo() {
         // how long since start of the hour?
         var date = new Date();
         var dateHour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
-        var msSinceHour = date - dateHour;
+        msSinceHour = date - dateHour;
 
-        video.currentTime = (msSinceHour + 100) / 1000;
-        video.play();
+        video.currentTime = msSinceHour / 1000;
+	video.addEventListener("seeked", seekComplete);
+}
+
+function seekComplete() {
+	console.log("Seeked: "+ video.currentTime);
+	console.log("Time:   "+ msSinceHour);
+	video.removeEventListener("seeked", seekComplete);
+	video.play();
 }
 
 
@@ -36,5 +51,4 @@ window.requestAnimFrame = (function(callback) {
           window.setTimeout(callback, 1000 / 60);
         };
 })();
-
 
