@@ -5,18 +5,18 @@ var Video = function (domID, startTime) {
         syncVideo();
     });
 
-    function getSecondsFromLoop() {
+    function getSecondsFromLoopStart() {
         var time = startTime.split(":");
         // how long since start of the hour?
         var date = new Date();
-        var dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), time[0], time[1]);
+        var dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(time[0], 10), parseInt(time[1], 10));
         var secondsFromStart = (date - dateStart) / 1000;
         return secondsFromStart % dom.duration;
     }
 
     function syncVideo() {
         // seek to position we want
-        dom.currentTime = getSecondsFromLoop();
+        dom.currentTime = getSecondsFromLoopStart();
         // check the buffer to see when we have enough to play
         intervalSyncVideo = setInterval(checkVideoSync, 100);
     }
@@ -33,7 +33,7 @@ var Video = function (domID, startTime) {
 
     function checkVideoSync() {
         // How many ms from hour?
-        var currentTime = getSecondsFromLoop();
+        var currentTime = getSecondsFromLoopStart();
         dom.currentTime = currentTime + 0.07; // seek takes about 70ms on my system
 
         // have we buffered far enough ahead to start playing?
@@ -49,7 +49,7 @@ var Video = function (domID, startTime) {
     function seekComplete() {
         dom.removeEventListener("seeked", seekComplete);
         console.log("Seeked: "+ dom.currentTime);
-        console.log("Time:   "+ getSecondsFromLoop());
+        console.log("Time:   "+ getSecondsFromLoopStart());
     }
 
 }
