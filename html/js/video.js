@@ -1,12 +1,18 @@
 var Video = function (domID, startTime) {
-    var dom = document.getElementById(domID);
+    var dom = document.getElementById(domID),
+        SEEK_TIME = 0.07, // seek takes about 70ms on my system
+        ACCEPTABLE_THRESHOLD = 1; // can be up to 1 second off before we play
 
-    var SEEK_TIME = 0.07; // seek takes about 70ms on my system
-
-    dom.addEventListener('loadedmetadata', function () {
-        // we have duration... we can start seek/play
+    if (isNaN(dom.duration)) {
+        // we haven't received the metadata yet
+        dom.addEventListener('loadedmetadata', function () {
+            console.log("Got metadata.  Duration: "+ dom.duration);
+            // we have duration... we can start seek/play
+            syncVideo();
+        });
+    } else {
         syncVideo();
-    });
+    }
 
     function getSecondsFromLoopStart() {
         var time = startTime.split(":");
@@ -24,20 +30,16 @@ var Video = function (domID, startTime) {
 
     function syncVideo() {
         dom.removeEventListener("seeked", syncVideo);
-
         var currentTime = getSecondsFromLoopStart();
-
-        console.log("Seeked: "+ dom.currentTime);
-        console.log("Time:   "+ currentTime);
+        console.log("Seek completed: "+ dom.currentTime +" Current Time: "+ currentTime);
 
         // are we within an acceptable range?
-        if ((dom.currentTime > currentTime) && (dom.currentTime < currentTime + .5)) {
-            // we're good to go!
+        if ((dom.currentTime >= currentTime) && (dom.currentTime < currentTime + ACCEPTABLE_THRESHOLD)) {
+            console.log("We're good to go.  Start play at: "+ dom.currentTime);
             dom.play();
         } else {
-            // let's seek ahead again
+            console.log("Not close enough.  Let's seek again.");
             dom.currentTime = currentTime + SEEK_TIME;
-            // wait for seek
             dom.addEventListener("seeked", syncVideo);
         }
     }
