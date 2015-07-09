@@ -14,6 +14,12 @@ var Video = function (domID, startTime) {
         syncVideo();
     }
 
+    dom.addEventListener('click', function () {
+        // need to play it first.
+        dom.play();
+        syncVideo();
+    });
+
     function getSecondsFromStart() {
         var time = startTime.split(":");
         // how long since start of the hour?
