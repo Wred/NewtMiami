@@ -14,7 +14,6 @@ var Video = function (domID, startTime) {
         syncVideo();
     }
 
-
     function getSecondsFromStart() {
         var time = startTime.split(":");
         // how long since start of the hour?
