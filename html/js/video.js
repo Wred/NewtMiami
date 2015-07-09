@@ -9,8 +9,17 @@ var Video = function (domID, startTime) {
         var time = startTime.split(":");
         // how long since start of the hour?
         var date = new Date();
-        var dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(time[0], 10), parseInt(time[1], 10));
-        var secondsFromStart = (date - dateStart) / 1000;
+        var timeNow = date.getTime();
+        var timeStart = (new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(time[0], 10), parseInt(time[1], 10))).getTime();
+        if (timeNow < timeStart) {
+            // we're before the start time
+            // add a day
+            timeNow += (24 * 60 * 60 * 1000);
+        }
+        var secondsFromStart = (timeNow - timeStart) / 1000;
+
+        console.log(secondsFromStart);
+
         return secondsFromStart % dom.duration;
     }
 

@@ -1,5 +1,5 @@
 var Clock = function (domID) {
-    var dom = document.getElementById("time");
+    var dom = document.getElementById(domID);
 
     function pad2(num) {
     	var str = num.toString();
