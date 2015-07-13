@@ -1,8 +1,9 @@
 var Video = function (domID, startTime) {
     var dom = document.getElementById(domID),
         SEEK_TIME = 0.07, // seek takes about 70ms on my system
-        ACCEPTABLE_THRESHOLD = .05; // can be off plus or minus this value before we play
+        ACCEPTABLE_THRESHOLD = .2; // can be off plus or minus this value before we play
 
+/*
     if (isNaN(dom.duration)) {
         // we haven't received the metadata yet
         dom.addEventListener('loadedmetadata', function () {
@@ -13,12 +14,14 @@ var Video = function (domID, startTime) {
     } else {
         syncVideo();
     }
+*/
 
     dom.addEventListener('click', function () {
         // need to play it first.
         dom.play();
-        syncVideo();
     });
+
+    dom.addEventListener('play', syncVideo);
 
     function getSecondsFromStart() {
         var time = startTime.split(":");
