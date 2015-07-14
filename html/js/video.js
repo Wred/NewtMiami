@@ -1,18 +1,20 @@
 var Video = function (domID, startTime) {
     var dom = document.getElementById(domID),
-        SEEK_AHEAD_TIME = .8, // give it enough time to finish seek
+        SEEK_AHEAD_TIME = 1, // give it enough time to finish seek
         playTimeout = null,
-        firstPlay = true;
+        isFirstPlay = true;
 
     dom.addEventListener('click', syncVideo);
 
-    dom.addEventListener('play', function () {
-        // only sync first time we play
-        if (firstPlay) {
-            firstPlay = false;
+    // call first play (and make sure we call it if we're already playing)
+    dom.paused ? dom.addEventListener('play', firstPlay) : firstPlay();
+
+    function firstPlay() {
+        if (isFirstPlay) {
+            isFirstPlay = false;
             syncVideo();
         }
-    });
+    }
 
     function getSecondsFromStart() {
         var time = startTime.split(":");
@@ -36,9 +38,11 @@ var Video = function (domID, startTime) {
         // let's pause first.
         dom.pause();
 
+        // where are we supposed to be?
         var currentTime = getSecondsFromLoopStart();
-
         console.log("Seeked at "+ dom.currentTime +"s. Current Time is "+ currentTime +"s.");
+
+
 
         // Do we still have time to start play?
         if ((dom.currentTime > currentTime) && (dom.currentTime < currentTime + SEEK_AHEAD_TIME)) {

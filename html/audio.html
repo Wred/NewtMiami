@@ -10,6 +10,10 @@ var video;
 window.addEventListener("load", function onload(e) {
 	video = new Video("video", "20:00");
 });
+
+window.addEventListener("touchstart", function () {
+	documenet.getElementById("video").play();
+});
 </script>
 </head>
 <body>
