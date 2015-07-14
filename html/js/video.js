@@ -1,27 +1,18 @@
 var Video = function (domID, startTime) {
     var dom = document.getElementById(domID),
-        SEEK_TIME = 0.07, // seek takes about 70ms on my system
-        ACCEPTABLE_THRESHOLD = .2; // can be off plus or minus this value before we play
+        SEEK_AHEAD_TIME = .8, // give it enough time to finish seek
+        playTimeout = null,
+        firstPlay = true;
 
-/*
-    if (isNaN(dom.duration)) {
-        // we haven't received the metadata yet
-        dom.addEventListener('loadedmetadata', function () {
-            console.log("Got metadata.  Duration: "+ dom.duration +" seconds.");
-            // we have duration... we can start seek/play
+    dom.addEventListener('click', syncVideo);
+
+    dom.addEventListener('play', function () {
+        // only sync first time we play
+        if (firstPlay) {
+            firstPlay = false;
             syncVideo();
-        });
-    } else {
-        syncVideo();
-    }
-*/
-
-    dom.addEventListener('click', function () {
-        // need to play it first.
-        dom.play();
+        }
     });
-
-    dom.addEventListener('play', syncVideo);
 
     function getSecondsFromStart() {
         var time = startTime.split(":");
@@ -42,20 +33,33 @@ var Video = function (domID, startTime) {
 
     function syncVideo() {
         dom.removeEventListener("seeked", syncVideo);
-        var currentTime = getSecondsFromLoopStart();
-        console.log("Seek completed at "+ dom.currentTime +"s. Current Time is "+ currentTime +"s.");
+        // let's pause first.
+        dom.pause();
 
-        // are we within an acceptable range?
-        if ((dom.currentTime >= currentTime - ACCEPTABLE_THRESHOLD) && (dom.currentTime < currentTime + ACCEPTABLE_THRESHOLD)) {
-            console.log("We're good to go.  Start play at "+ dom.currentTime +"s. We're about "+ Math.round((currentTime - dom.currentTime) * 1000) +" milliseconds off.");
-            dom.play();
-            // let's make sure we resync at the daily start time if this plays through
-            window.setTimeout((24 * 60 * 60) - getSecondsFromStart(), syncVideo);
+        var currentTime = getSecondsFromLoopStart();
+
+        console.log("Seeked at "+ dom.currentTime +"s. Current Time is "+ currentTime +"s.");
+
+        // Do we still have time to start play?
+        if ((dom.currentTime > currentTime) && (dom.currentTime < currentTime + SEEK_AHEAD_TIME)) {
+            var offset = Math.round((dom.currentTime - currentTime) * 1000);
+            console.log("Set timeout to start play: "+ offset);
+            playTimeout = window.setTimeout(startPlay, offset);
         } else {
-            console.log("Not close enough - seek again.");
-            dom.currentTime = currentTime + SEEK_TIME;
+            console.log("Seek ahead...");
             dom.addEventListener("seeked", syncVideo);
+            dom.currentTime = currentTime + SEEK_AHEAD_TIME;
         }
+    }
+
+    function startPlay() {
+        dom.play();
+
+        var currentTime = getSecondsFromLoopStart();
+        console.log("Started play about "+ Math.round((currentTime - dom.currentTime) * 1000) +" milliseconds off.");
+
+        // let's make sure we resync at the daily start time if this plays through
+        window.setTimeout(syncVideo, ((24 * 60 * 60) - currentTime) * 1000);
     }
 
     function isTimeBuffered(time) {
