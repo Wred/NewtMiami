@@ -9,11 +9,12 @@ var video;
 
 window.addEventListener("load", function onload(e) {
 	video = new Video("video", "20:00");
+
+	if(/iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase()) ) {
+		document.getElementById("video").setAttribute("controls","controls");
+	}
 });
 
-window.addEventListener("touchstart", function () {
-	documenet.getElementById("video").play();
-});
 </script>
 </head>
 <body>

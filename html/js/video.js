@@ -1,8 +1,11 @@
 var Video = function (domID, startTime) {
     var dom = document.getElementById(domID),
         SEEK_AHEAD_TIME = 1, // give it enough time to finish seek
+        PLAY_START_TIME = .08;
         playTimeout = null,
-        isFirstPlay = true;
+        startTimeTimeout = null,
+        isFirstPlay = true,
+        syncCheckInterval = null;
 
     dom.addEventListener('click', syncVideo);
 
@@ -15,6 +18,8 @@ var Video = function (domID, startTime) {
             syncVideo();
         }
     }
+
+    syncCheckInterval = setInterval(syncCheck, 2000);
 
     function getSecondsFromStart() {
         var time = startTime.split(":");
@@ -42,11 +47,12 @@ var Video = function (domID, startTime) {
         var currentTime = getSecondsFromLoopStart();
         console.log("Seeked at "+ dom.currentTime +"s. Current Time is "+ currentTime +"s.");
 
-
-
         // Do we still have time to start play?
         if ((dom.currentTime > currentTime) && (dom.currentTime < currentTime + SEEK_AHEAD_TIME)) {
-            var offset = Math.round((dom.currentTime - currentTime) * 1000);
+            var offset = Math.round((dom.currentTime - currentTime) * 1000) - (PLAY_START_TIME * 1000);
+            if (playTimeout) {
+                window.clearTimeout(playTimeout);
+            }
             console.log("Set timeout to start play: "+ offset);
             playTimeout = window.setTimeout(startPlay, offset);
         } else {
@@ -60,10 +66,12 @@ var Video = function (domID, startTime) {
         dom.play();
 
         var currentTime = getSecondsFromLoopStart();
-        console.log("Started play about "+ Math.round((currentTime - dom.currentTime) * 1000) +" milliseconds off.");
+        console.log("Started play about "+ (Math.round((currentTime - dom.currentTime) * 1000) + (PLAY_START_TIME * 1000)) +" milliseconds off.");
 
-        // let's make sure we resync at the daily start time if this plays through
-        window.setTimeout(syncVideo, ((24 * 60 * 60) - currentTime) * 1000);
+
+        if (!startTimeTimeout)
+            // let's make sure we resync at the daily start time if this plays through
+            startTimeTimeout = window.setTimeout(syncVideo, ((24 * 60 * 60) - currentTime) * 1000);
     }
 
     function isTimeBuffered(time) {
@@ -76,4 +84,12 @@ var Video = function (domID, startTime) {
         return false;
     }
 
+    function syncCheck() {
+        console.log("Sync check: "+ Math.round((getSecondsFromLoopStart() - dom.currentTime) * 1000));
+    }
+
+    return {
+        dom: dom,
+        syncVideo: syncVideo
+    }
 }
