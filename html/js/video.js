@@ -1,11 +1,12 @@
 var Video = function (domID, startTime) {
     var dom = document.getElementById(domID),
         SEEK_AHEAD_TIME = 1, // give it enough time to finish seek
-        PLAY_START_TIME = .08;
+        playOffset = .08;  // time it takes to start play in seconds
         playTimeout = null,
         startTimeTimeout = null,
         isFirstPlay = true,
-        syncCheckInterval = null;
+        syncCheckInterval = null,
+        ACCEPTABLE_OFFSET = .05; // in seconds
 
     dom.addEventListener('click', syncVideo);
 
@@ -40,6 +41,7 @@ var Video = function (domID, startTime) {
 
     function syncVideo() {        
         dom.removeEventListener("seeked", syncVideo);
+
         // let's pause first.
         dom.pause();
 
@@ -49,7 +51,7 @@ var Video = function (domID, startTime) {
 
         // Do we still have time to start play?
         if ((dom.currentTime > currentTime) && (dom.currentTime < currentTime + SEEK_AHEAD_TIME)) {
-            var offset = Math.round((dom.currentTime - currentTime) * 1000) - (PLAY_START_TIME * 1000);
+            var offset = Math.round((dom.currentTime - currentTime) * 1000) - (playOffset * 1000);
             if (playTimeout) {
                 window.clearTimeout(playTimeout);
             }
@@ -66,7 +68,7 @@ var Video = function (domID, startTime) {
         dom.play();
 
         var currentTime = getSecondsFromLoopStart();
-        console.log("Started play about "+ (Math.round((currentTime - dom.currentTime) * 1000) + (PLAY_START_TIME * 1000)) +" milliseconds off.");
+        console.log("Started play about "+ (Math.round((currentTime - dom.currentTime) * 1000) + (playOffset * 1000)) +" milliseconds off.");
 
         if (!startTimeTimeout) {
             // let's make sure we resync at the daily start time if this plays through
@@ -91,7 +93,14 @@ var Video = function (domID, startTime) {
     }
 
     function syncCheck() {
-        console.log("Sync check: "+ Math.round((getSecondsFromLoopStart() - dom.currentTime) * 1000));
+        var offset = getSecondsFromLoopStart() - dom.currentTime;
+
+        console.log("Sync check: "+ Math.round(offset * 1000));
+
+        if ((Math.abs(offset) > ACCEPTABLE_OFFSET) && !playTimeout) {
+            console.log("Resyncing...");
+            syncVideo();
+        }
     }
 
     return {
