@@ -1,4 +1,4 @@
-var Video = function (domID, startTime) {
+var Video = function (domID, startTime, loopLength) {
     var dom = document.getElementById(domID),
         SEEK_AHEAD_TIME = 1, // give it enough time to finish seek
         playOffset = .08;  // time it takes to start play in seconds
@@ -7,6 +7,7 @@ var Video = function (domID, startTime) {
         isFirstPlay = true,
         syncCheckInterval = null,
         ACCEPTABLE_OFFSET = .05; // in seconds
+
 
     dom.addEventListener('click', syncVideo);
 
@@ -36,7 +37,8 @@ var Video = function (domID, startTime) {
     }
 
     function getSecondsFromLoopStart() {
-        return getSecondsFromStart() % dom.duration;
+        return getSecondsFromStart() % loopLength;
+        // return getSecondsFromStart() % dom.duration;
     }
 
     function syncVideo() {        

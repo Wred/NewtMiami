@@ -8,7 +8,7 @@
 var video;
 
 window.addEventListener("load", function onload(e) {
-	video = new Video("video", "20:00");
+	video = new Video("video", "20:00", 10 * 60);
 
 	if(/iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase()) ) {
 		document.getElementById("video").setAttribute("controls","controls");
