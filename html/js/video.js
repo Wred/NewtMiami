@@ -67,18 +67,27 @@ var Video = function (domID, startTime, loopLength) {
     }
 
     function startPlay() {
+        if (playTimeout) {
+            window.clearTimeout(playTimeout);
+            playTimeout = null;
+        }
+
         dom.play();
 
         var currentTime = getSecondsFromLoopStart();
         console.log("Started play about "+ (Math.round((currentTime - dom.currentTime) * 1000) + (playOffset * 1000)) +" milliseconds off.");
 
         if (!startTimeTimeout) {
-            // let's make sure we resync at the daily start time if this plays through
-            startTimeTimeout = window.setTimeout(restartTimeout, ((24 * 60 * 60) - currentTime) * 1000);
+            var loopTime = (loopLength - currentTime) * 1000;
+            if (loopTime > 0) {
+                // let's make sure we resync once we're past the end of the loop
+                startTimeTimeout = window.setTimeout(restartTimeout, loopTime);
+            }
         }
     }
 
     function restartTimeout() {
+        console.log("Past the loop - resyncing...");
         // this happens once a day to make sure we start again at the right time
         startTimeTimeout = null;
         syncVideo();
