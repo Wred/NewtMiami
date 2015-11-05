@@ -108,10 +108,10 @@ var Video = function (domID, startTime, loopLength) {
 
         console.log("Sync check: "+ Math.round(offset * 1000));
 
-        if ((Math.abs(offset) > ACCEPTABLE_OFFSET) && !playTimeout) {
-            console.log("Resyncing...");
-            syncVideo();
-        }
+        // if ((Math.abs(offset) > ACCEPTABLE_OFFSET) && !playTimeout) {
+        //     console.log("Resyncing...");
+        //     syncVideo();
+        // }
     }
 
     return {
