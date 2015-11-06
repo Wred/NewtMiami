@@ -133,6 +133,9 @@ var Video = function (domID, startTime, loopLength) {
 
         console.log("Sync check: "+ Math.round(offset * 1000));
 
+        // skip this for now...
+        return;
+
         if ((Math.abs(offset) > ACCEPTABLE_OFFSET) && !playTimeout) {
             // adjust play offset
             playOffset += offset;
